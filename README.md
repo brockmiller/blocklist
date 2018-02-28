@@ -1,4 +1,4 @@
-# BlockList Ethereum Application
+# BlockList Ethereum Application (WIP)
 
 A simple classifieds app (e.g. craiglist) built on the Ethereum blockchain.
 
