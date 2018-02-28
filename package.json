@@ -1,6 +1,6 @@
 {
-  "name": "blocklist",
-  "version": "1.0.0",
+  "name": "BlockList",
+  "version": "0.0.1",
   "description": "",
   "main": "truffle.js",
   "directories": {
