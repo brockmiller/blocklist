@@ -67,17 +67,34 @@ App = {
         return;
       }
 
-      // retrieve the item template and fill it
-      var itemTemplate = $('#itemTemplate');
-      itemTemplate.find('.panel-title').text(item[1]);
-      itemTemplate.find('.item-description').text(item[2]);
-      itemTemplate.find('.item-price').text(web3.fromWei(item[3], "ether"));
+      const price = web3.fromWei(item[4], 'ether');
 
-      var seller = item[0];
+      // retrieve the item template and fill it
+      const itemTemplate = $('#itemTemplate');
+      itemTemplate.find('.panel-title').text(item[2]);
+      itemTemplate.find('.item-description').text(item[3]);
+      itemTemplate.find('.item-price').text(price);
+      itemTemplate.find('.btn-buy').attr('data-value', price);
+
+      let seller = item[0];
+      let buyer = item[1];
+      if (seller == App.account || buyer != 0x0) {
+        itemTemplate.find('.btn-buy').hide();
+      } else {
+        itemTemplate.find('.btn-buy').show();
+      }
+
       if (seller == App.account) {
         seller = "You";
       }
       itemTemplate.find('.item-seller').text(seller);
+
+      if (buyer == App.account) {
+        buyer = "You";
+      } else if (buyer == 0x0) {
+        buyer = "<Unpurchased>";
+      }
+      itemTemplate.find('.item-buyer').text(buyer);
 
       // add this item
       $('#itemsRow').append(itemTemplate.html());
@@ -120,8 +137,33 @@ App = {
         }
         App.reloadItems();
       });
+
+      instance.LogBuyItem({}, {}).watch((error, event) => {
+        if (!error) {
+          $("#events").append('<li class="list-group-item">' + event.args._buyer + ' bought ' + event.args._name + '</li>');
+        } else {
+          console.error(error);
+        }
+        App.reloadItems();
+      });
     });
   },
+
+  buyItem: function() {
+    event.preventDefault();
+
+    let _price = parseFloat($(event.target).data('value'));
+
+    App.contracts.BlockList.deployed().
+      then((instance) => {
+        return instance.buyItem({
+          from: App.account,
+          value: web3.toWei(_price, 'ether'),
+          gas: 500000
+        });
+      }).
+      catch((err) => console.error(err));
+  }
 };
 
 $(function() {
